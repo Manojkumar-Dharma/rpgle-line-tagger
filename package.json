@@ -1,0 +1,59 @@
+{
+  "name": "rpgle-line-tagger",
+  "displayName": "RPGLE Line Tagger",
+  "description": "Add source modification tags (e.g. //0084) to selected RPGLE lines at a fixed column.",
+  "version": "0.0.1",
+  "publisher": "Manojkumar-IBMi",
+  "icon": "icon.png",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "rpgleTagger.addTag",
+        "title": "RPGLE: Add Source Tag"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "editorHasSelection",
+          "command": "rpgleTagger.addTag",
+          "group": "9_cutcopypaste"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "RPGLE Line Tagger",
+      "properties": {
+        "rpgleTagger.maxLineLength": {
+          "type": "number",
+          "default": 100,
+          "description": "Total usable line length for source lines."
+        },
+        "rpgleTagger.tagColumn": {
+          "type": "number",
+          "default": 90,
+          "description": "1-indexed column where the tag should start when there's room."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.0"
+  }
+}
