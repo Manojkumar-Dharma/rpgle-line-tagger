@@ -4,6 +4,23 @@ const DEFAULT_MAX_LINE_LENGTH = 100;
 const DEFAULT_TAG_COLUMN = 90; // 1-indexed column where the tag starts when there's room
 const MAX_TAG_LENGTH = 10;
 
+// Language ids and file extensions that indicate a CL (CLP/CLLE) source member,
+// which uses /* ... */ comments instead of RPGLE's // comments.
+const CL_LANGUAGE_IDS = ['cl', 'clle', 'clp'];
+const CL_FILE_EXTENSIONS = ['clp', 'clle', 'cl'];
+
+function isClSource(document: vscode.TextDocument): boolean {
+	if (CL_LANGUAGE_IDS.includes(document.languageId.toLowerCase())) {
+		return true;
+	}
+	const ext = document.fileName.split('.').pop()?.toLowerCase() ?? '';
+	return CL_FILE_EXTENSIONS.includes(ext);
+}
+
+function buildTagText(tag: string, document: vscode.TextDocument): string {
+	return isClSource(document) ? `/* ${tag} */` : `//${tag}`;
+}
+
 export function activate(context: vscode.ExtensionContext) {
 	const disposable = vscode.commands.registerCommand('rpgleTagger.addTag', async () => {
 		const editor = vscode.window.activeTextEditor;
@@ -62,7 +79,9 @@ export function activate(context: vscode.ExtensionContext) {
 			? Number(columnInput.trim())
 			: defaultTagColumn;
 
-		applyTags(editor, tag, maxLineLength, tagColumn);
+		const tagText = buildTagText(tag, editor.document);
+
+		applyTags(editor, tagText, maxLineLength, tagColumn);
 	});
 
 	context.subscriptions.push(disposable);
@@ -74,8 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
  * Processed bottom-to-top so that line insertions (case 3) don't shift
  * the line numbers of lines still waiting to be processed.
  */
-function applyTags(editor: vscode.TextEditor, tag: string, maxLineLength: number, tagColumn: number) {
-	const tagText = `//${tag}`;
+function applyTags(editor: vscode.TextEditor, tagText: string, maxLineLength: number, tagColumn: number) {
 	const colIndex = tagColumn - 1; // 0-indexed string position where the tag starts
 
 	const lineNumbers = new Set<number>();

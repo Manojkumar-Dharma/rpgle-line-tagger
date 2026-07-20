@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.3
+
+- CLP/CLLE source files now get `/* tag */` style comments instead of `//tag`. Detected by file language id (`cl`/`clle`/`clp`) or file extension (`.clp`/`.clle`/`.cl`); all other files still use `//tag`.
+
 ## 0.0.2
 
 - Prompt placeholder now reads "Add your tag" instead of showing a sample value.
