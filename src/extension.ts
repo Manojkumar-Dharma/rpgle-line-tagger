@@ -18,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		const tag = await vscode.window.showInputBox({
 			prompt: `Enter source tag (max ${MAX_TAG_LENGTH} characters)`,
-			placeHolder: '0084',
+			placeHolder: 'Add your tag',
 			validateInput: (value) => {
 				if (!value || value.trim().length === 0) {
 					return 'Tag cannot be empty';
@@ -39,7 +39,28 @@ export function activate(context: vscode.ExtensionContext) {
 
 		const config = vscode.workspace.getConfiguration('rpgleTagger');
 		const maxLineLength = config.get<number>('maxLineLength', DEFAULT_MAX_LINE_LENGTH);
-		const tagColumn = config.get<number>('tagColumn', DEFAULT_TAG_COLUMN);
+		const defaultTagColumn = config.get<number>('tagColumn', DEFAULT_TAG_COLUMN);
+
+		// Optional per-run override of the tag column. Leave blank to use the
+		// configured default (rpgleTagger.tagColumn).
+		const columnInput = await vscode.window.showInputBox({
+			prompt: `Tag column (optional - press Enter to use default: ${defaultTagColumn})`,
+			placeHolder: `${defaultTagColumn}`,
+			validateInput: (value) => {
+				if (!value || value.trim().length === 0) {
+					return null; // empty is fine - falls back to the default
+				}
+				const n = Number(value);
+				if (!Number.isInteger(n) || n < 1 || n > maxLineLength) {
+					return `Enter a whole number between 1 and ${maxLineLength}`;
+				}
+				return null;
+			}
+		});
+
+		const tagColumn = (columnInput !== undefined && columnInput.trim().length > 0)
+			? Number(columnInput.trim())
+			: defaultTagColumn;
 
 		applyTags(editor, tag, maxLineLength, tagColumn);
 	});

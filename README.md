@@ -7,6 +7,9 @@ Adds a source modification tag (e.g. `//0084`) to selected RPGLE lines at a fixe
 1. Select one or more lines in the editor (multiple selections are supported).
 2. Right-click and choose **RPGLE: Add Source Tag**, or run the command from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
 3. Enter a tag (max 10 characters), e.g. `0084`.
+4. Optionally enter a tag column for this run only — leave it blank to use the configured default (`rpgleTagger.tagColumn`).
+
+The extension works on any file type — it doesn't check the file's language, so it already applies to CLP and CLLE sources today. (Type-specific handling for CLP/CLLE is planned for a future version.)
 
 ## Placement rules
 
