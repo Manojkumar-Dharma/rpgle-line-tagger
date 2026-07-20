@@ -2,7 +2,7 @@
   "name": "rpgle-line-tagger",
   "displayName": "RPGLE Line Tagger",
   "description": "Add source modification tags (e.g. //0084) to selected RPGLE lines at a fixed column.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "Manojkumar-IBMi",
   "icon": "icon.png",
   "license": "MIT",

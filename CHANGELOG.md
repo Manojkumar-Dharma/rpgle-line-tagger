@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.4
+
+- SQL source files now get `-- tag` style comments. Detected by file language id (`sql`) or file extension (`.sql`).
+
 ## 0.0.3
 
 - CLP/CLLE source files now get `/* tag */` style comments instead of `//tag`. Detected by file language id (`cl`/`clle`/`clp`) or file extension (`.clp`/`.clle`/`.cl`); all other files still use `//tag`.

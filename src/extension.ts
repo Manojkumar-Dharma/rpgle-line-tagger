@@ -9,6 +9,10 @@ const MAX_TAG_LENGTH = 10;
 const CL_LANGUAGE_IDS = ['cl', 'clle', 'clp'];
 const CL_FILE_EXTENSIONS = ['clp', 'clle', 'cl'];
 
+// Language ids and file extensions for SQL source members, which use -- comments.
+const SQL_LANGUAGE_IDS = ['sql'];
+const SQL_FILE_EXTENSIONS = ['sql'];
+
 function isClSource(document: vscode.TextDocument): boolean {
 	if (CL_LANGUAGE_IDS.includes(document.languageId.toLowerCase())) {
 		return true;
@@ -17,8 +21,22 @@ function isClSource(document: vscode.TextDocument): boolean {
 	return CL_FILE_EXTENSIONS.includes(ext);
 }
 
+function isSqlSource(document: vscode.TextDocument): boolean {
+	if (SQL_LANGUAGE_IDS.includes(document.languageId.toLowerCase())) {
+		return true;
+	}
+	const ext = document.fileName.split('.').pop()?.toLowerCase() ?? '';
+	return SQL_FILE_EXTENSIONS.includes(ext);
+}
+
 function buildTagText(tag: string, document: vscode.TextDocument): string {
-	return isClSource(document) ? `/* ${tag} */` : `//${tag}`;
+	if (isClSource(document)) {
+		return `/* ${tag} */`;
+	}
+	if (isSqlSource(document)) {
+		return `-- ${tag}`;
+	}
+	return `//${tag}`;
 }
 
 export function activate(context: vscode.ExtensionContext) {
