@@ -6,6 +6,10 @@
   "publisher": "Manojkumar-IBMi",
   "icon": "icon.png",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Manojkumar-Dharma/rpgle-line-tagger.git"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
