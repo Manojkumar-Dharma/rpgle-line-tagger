@@ -6,7 +6,7 @@ Adds a source modification tag to selected lines in RPGLE, CLP/CLLE, and SQL sou
 
 1. Select one or more lines in the editor (multiple selections are supported).
 2. Right-click and choose **iTagger: Add Source Tag**, or run the command from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
-3. Enter a tag (max 10 characters), e.g. `0084`.
+3. Enter a tag (max 10 characters), e.g. `0001`.
 4. Optionally enter a tag column for this run only — leave it blank to use the configured default (`itagger.tagColumn`).
 
 The extension works on any file type. RPGLE (and everything else) gets `//tag` comments; CLP and CLLE source files get `/* tag */` comments; SQL source files get `-- tag` comments.
@@ -15,7 +15,7 @@ The extension works on any file type. RPGLE (and everything else) gets `//tag` c
 
 Given a 100-character line and a tag column of 90 (both configurable):
 
-1. **Room before column 90** — the line is padded with spaces and the tag (e.g. `//0084`, `/* 0084 */`, or `-- 0084` depending on file type) is placed starting at column 90.
+1. **Room before column 90** — the line is padded with spaces and the tag (e.g. `//0001`, `/* 0001 */`, or `-- 0001` depending on file type) is placed starting at column 90.
 2. **Code already reaches column 90, but the line isn't full** — the tag is appended right after the existing text, separated by a single space.
 3. **No room left on the line** — a tag-only line is inserted immediately before *and* immediately after the code line, starting at column 1 and marked `tag-begin` / `tag-end`, so the original line is left untouched.
 
