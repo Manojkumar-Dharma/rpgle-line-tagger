@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.6
+
+- When a line has no room left for an inline tag, the inserted before/after lines now start at column 1 (instead of the tag column) and are marked `tag-begin` / `tag-end` so the pair is distinguishable. Applies to all supported comment styles (`//`, `/* */`, `--`).
+
 ## 0.0.5
 
 - Renamed the extension from "RPGLE Line Tagger" to **iTagger**. Command id changed to `itagger.addTag`, and settings moved from `rpgleTagger.*` to `itagger.*`.

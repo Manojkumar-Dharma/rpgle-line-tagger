@@ -17,7 +17,7 @@ Given a 100-character line and a tag column of 90 (both configurable):
 
 1. **Room before column 90** — the line is padded with spaces and the tag (`//0084`) is placed starting at column 90.
 2. **Code already reaches column 90, but the line isn't full** — the tag is appended right after the existing text, separated by a single space.
-3. **No room left on the line** — a tag-only line is inserted immediately before *and* immediately after the code line, so the original line is left untouched.
+3. **No room left on the line** — a tag-only line is inserted immediately before *and* immediately after the code line, starting at column 1 and marked `tag-begin` / `tag-end`, so the original line is left untouched.
 
 ## Settings
 

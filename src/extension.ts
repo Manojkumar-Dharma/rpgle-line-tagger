@@ -97,9 +97,7 @@ export function activate(context: vscode.ExtensionContext) {
 			? Number(columnInput.trim())
 			: defaultTagColumn;
 
-		const tagText = buildTagText(tag, editor.document);
-
-		applyTags(editor, tagText, maxLineLength, tagColumn);
+		applyTags(editor, tag, editor.document, maxLineLength, tagColumn);
 	});
 
 	context.subscriptions.push(disposable);
@@ -111,8 +109,9 @@ export function activate(context: vscode.ExtensionContext) {
  * Processed bottom-to-top so that line insertions (case 3) don't shift
  * the line numbers of lines still waiting to be processed.
  */
-function applyTags(editor: vscode.TextEditor, tagText: string, maxLineLength: number, tagColumn: number) {
+function applyTags(editor: vscode.TextEditor, tag: string, document: vscode.TextDocument, maxLineLength: number, tagColumn: number) {
 	const colIndex = tagColumn - 1; // 0-indexed string position where the tag starts
+	const tagText = buildTagText(tag, document);
 
 	const lineNumbers = new Set<number>();
 	for (const sel of editor.selections) {
@@ -155,10 +154,12 @@ function applyTags(editor: vscode.TextEditor, tagText: string, maxLineLength: nu
 				continue;
 			}
 
-			// Case 3: line is fully occupied - sandwich a tag-only line before and after
-			const tagLine = ''.padEnd(colIndex, ' ') + tagText;
-			editBuilder.insert(line.range.end, eol + tagLine);
-			editBuilder.insert(line.range.start, tagLine + eol);
+			// Case 3: line is fully occupied - sandwich with tag-only lines at the
+			// start of the line, marked -begin / -end so they're distinguishable.
+			const beginTagLine = buildTagText(`${tag}-begin`, document);
+			const endTagLine = buildTagText(`${tag}-end`, document);
+			editBuilder.insert(line.range.end, eol + endTagLine);
+			editBuilder.insert(line.range.start, beginTagLine + eol);
 		}
 	});
 }
