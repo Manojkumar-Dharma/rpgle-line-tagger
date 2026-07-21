@@ -39,6 +39,29 @@ function buildTagText(tag: string, document: vscode.TextDocument): string {
 	return `//${tag}`;
 }
 
+/** True if this CL line continues onto the next line via a trailing '+'. */
+function continuesToNextLine(document: vscode.TextDocument, lineNum: number): boolean {
+	const trimmed = document.lineAt(lineNum).text.replace(/\s+$/, '');
+	return trimmed.endsWith('+');
+}
+
+/**
+ * Given any line that's part of a CL statement, walks backward/forward across
+ * '+' continuations to find the full logical statement's start and end lines.
+ * For a non-continued (single-line) command, start === end === lineNum.
+ */
+function findClStatementRange(document: vscode.TextDocument, lineNum: number): { start: number; end: number } {
+	let start = lineNum;
+	while (start > 0 && continuesToNextLine(document, start - 1)) {
+		start--;
+	}
+	let end = lineNum;
+	while (end < document.lineCount - 1 && continuesToNextLine(document, end)) {
+		end++;
+	}
+	return { start, end };
+}
+
 export function activate(context: vscode.ExtensionContext) {
 	const disposable = vscode.commands.registerCommand('itagger.addTag', async () => {
 		const editor = vscode.window.activeTextEditor;
@@ -104,15 +127,9 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 /**
- * Collects the set of line numbers touched by the current selections,
- * applying the tag to each according to the three placement rules.
- * Processed bottom-to-top so that line insertions (case 3) don't shift
- * the line numbers of lines still waiting to be processed.
+ * Collects the set of line numbers touched by the current selections.
  */
-function applyTags(editor: vscode.TextEditor, tag: string, document: vscode.TextDocument, maxLineLength: number, tagColumn: number) {
-	const colIndex = tagColumn - 1; // 0-indexed string position where the tag starts
-	const tagText = buildTagText(tag, document);
-
+function collectTouchedLines(editor: vscode.TextEditor): Set<number> {
 	const lineNumbers = new Set<number>();
 	for (const sel of editor.selections) {
 		if (sel.isEmpty) {
@@ -129,37 +146,85 @@ function applyTags(editor: vscode.TextEditor, tag: string, document: vscode.Text
 			lineNumbers.add(ln);
 		}
 	}
+	return lineNumbers;
+}
 
-	const sortedDesc = Array.from(lineNumbers).sort((a, b) => b - a);
-	const eol = editor.document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
+/**
+ * Applies case 1/2/3 placement to a single reference line (the line the tag
+ * should attach to) and, for case 3, sandwiches a wider block (blockStart..blockEnd)
+ * with begin/end tag lines instead of just the reference line itself.
+ */
+function tagReferenceLine(
+	editBuilder: vscode.TextEditorEdit,
+	document: vscode.TextDocument,
+	referenceLine: number,
+	blockStart: number,
+	blockEnd: number,
+	tag: string,
+	tagText: string,
+	maxLineLength: number,
+	colIndex: number,
+	eol: string
+) {
+	const line = document.lineAt(referenceLine);
+	const trimmedText = line.text.replace(/\s+$/, '');
+	const trimmedLen = trimmedText.length;
+
+	if (trimmedLen <= colIndex) {
+		// Case 1: code hasn't reached the tag column yet -> pad and place tag there
+		const padded = trimmedText.padEnd(colIndex, ' ');
+		editBuilder.replace(line.range, padded + tagText);
+		return;
+	}
+
+	const spaceNeeded = 1 + tagText.length; // separating space + tag
+	if (trimmedLen + spaceNeeded <= maxLineLength) {
+		// Case 2: code already passes the tag column, but there's still room
+		editBuilder.replace(line.range, trimmedText + ' ' + tagText);
+		return;
+	}
+
+	// Case 3: no room left - sandwich the whole block with tag-only lines at
+	// column 1, marked -begin / -end so the pair is distinguishable.
+	const beginTagLine = buildTagText(`${tag}-begin`, document);
+	const endTagLine = buildTagText(`${tag}-end`, document);
+	const firstLine = document.lineAt(blockStart);
+	const lastLine = document.lineAt(blockEnd);
+	editBuilder.insert(lastLine.range.end, eol + endTagLine);
+	editBuilder.insert(firstLine.range.start, beginTagLine + eol);
+}
+
+function applyTags(editor: vscode.TextEditor, tag: string, document: vscode.TextDocument, maxLineLength: number, tagColumn: number) {
+	const colIndex = tagColumn - 1; // 0-indexed string position where the tag starts
+	const tagText = buildTagText(tag, document);
+	const eol = document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
+	const touchedLines = collectTouchedLines(editor);
+
+	if (isClSource(document)) {
+		// CL statements can span multiple physical lines via a trailing '+'.
+		// Tag the logical statement once, at its last line - not each selected
+		// line individually. Group touched lines by the statement they belong to.
+		const statementsByStart = new Map<number, { start: number; end: number }>();
+		for (const ln of touchedLines) {
+			const range = findClStatementRange(document, ln);
+			statementsByStart.set(range.start, range);
+		}
+		const statements = Array.from(statementsByStart.values()).sort((a, b) => b.start - a.start);
+
+		editor.edit(editBuilder => {
+			for (const stmt of statements) {
+				tagReferenceLine(editBuilder, document, stmt.end, stmt.start, stmt.end, tag, tagText, maxLineLength, colIndex, eol);
+			}
+		});
+		return;
+	}
+
+	// RPGLE, SQL, and everything else: tag every selected line individually.
+	const sortedDesc = Array.from(touchedLines).sort((a, b) => b - a);
 
 	editor.edit(editBuilder => {
 		for (const lineNum of sortedDesc) {
-			const line = editor.document.lineAt(lineNum);
-			const rawText = line.text;
-			const trimmedText = rawText.replace(/\s+$/, '');
-			const trimmedLen = trimmedText.length;
-
-			if (trimmedLen <= colIndex) {
-				// Case 1: code hasn't reached the tag column yet -> pad and place tag there
-				const padded = trimmedText.padEnd(colIndex, ' ');
-				editBuilder.replace(line.range, padded + tagText);
-				continue;
-			}
-
-			const spaceNeeded = 1 + tagText.length; // separating space + tag
-			if (trimmedLen + spaceNeeded <= maxLineLength) {
-				// Case 2: code already passes the tag column, but there's still room
-				editBuilder.replace(line.range, trimmedText + ' ' + tagText);
-				continue;
-			}
-
-			// Case 3: line is fully occupied - sandwich with tag-only lines at the
-			// start of the line, marked -begin / -end so they're distinguishable.
-			const beginTagLine = buildTagText(`${tag}-begin`, document);
-			const endTagLine = buildTagText(`${tag}-end`, document);
-			editBuilder.insert(line.range.end, eol + endTagLine);
-			editBuilder.insert(line.range.start, beginTagLine + eol);
+			tagReferenceLine(editBuilder, document, lineNum, lineNum, lineNum, tag, tagText, maxLineLength, colIndex, eol);
 		}
 	});
 }

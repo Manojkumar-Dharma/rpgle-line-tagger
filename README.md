@@ -19,6 +19,15 @@ Given a 100-character line and a tag column of 90 (both configurable):
 2. **Code already reaches column 90, but the line isn't full** — the tag is appended right after the existing text, separated by a single space.
 3. **No room left on the line** — a tag-only line is inserted immediately before *and* immediately after the code line, starting at column 1 and marked `tag-begin` / `tag-end`, so the original line is left untouched.
 
+### CL/CLLE/CLP continuation statements
+
+A CL command that spans multiple physical lines via a trailing `+` is treated as **one logical statement**, not tagged line-by-line. Selecting any line that's part of the statement is enough — iTagger follows the `+` chain to find the statement's true start and end:
+
+- Rules 1/2 apply to the statement's **last** physical line only.
+- Rule 3, if triggered, sandwiches the **entire statement block** with `/* tag-begin */` / `/* tag-end */` at column 1, rather than wrapping just the last line.
+
+Single-line CL commands behave exactly like RPGLE/SQL lines (rules 1-3 applied directly).
+
 ## Settings
 
 | Setting | Default | Description |

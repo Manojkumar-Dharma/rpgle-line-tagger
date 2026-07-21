@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.7
+
+- CL/CLLE/CLP statements spanning multiple lines via `+` continuation are now tagged as a single logical statement instead of per-line: the tag lands once on the statement's last physical line (or, if there's no room, sandwiches the whole statement block with `-begin`/`-end` markers at column 1). Single-line CL commands are unaffected. RPGLE and SQL still tag every selected line individually.
+
 ## 0.0.6
 
 - When a line has no room left for an inline tag, the inserted before/after lines now start at column 1 (instead of the tag column) and are marked `tag-begin` / `tag-end` so the pair is distinguishable. Applies to all supported comment styles (`//`, `/* */`, `--`).
