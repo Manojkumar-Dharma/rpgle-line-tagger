@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.5
+
+- Renamed the extension from "RPGLE Line Tagger" to **iTagger**. Command id changed to `itagger.addTag`, and settings moved from `rpgleTagger.*` to `itagger.*`.
+
 ## 0.0.4
 
 - SQL source files now get `-- tag` style comments. Detected by file language id (`sql`) or file extension (`.sql`).

@@ -40,7 +40,7 @@ function buildTagText(tag: string, document: vscode.TextDocument): string {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-	const disposable = vscode.commands.registerCommand('rpgleTagger.addTag', async () => {
+	const disposable = vscode.commands.registerCommand('itagger.addTag', async () => {
 		const editor = vscode.window.activeTextEditor;
 		if (!editor) {
 			return;
@@ -72,12 +72,12 @@ export function activate(context: vscode.ExtensionContext) {
 			return; // user cancelled
 		}
 
-		const config = vscode.workspace.getConfiguration('rpgleTagger');
+		const config = vscode.workspace.getConfiguration('itagger');
 		const maxLineLength = config.get<number>('maxLineLength', DEFAULT_MAX_LINE_LENGTH);
 		const defaultTagColumn = config.get<number>('tagColumn', DEFAULT_TAG_COLUMN);
 
 		// Optional per-run override of the tag column. Leave blank to use the
-		// configured default (rpgleTagger.tagColumn).
+		// configured default (itagger.tagColumn).
 		const columnInput = await vscode.window.showInputBox({
 			prompt: `Tag column (optional - press Enter to use default: ${defaultTagColumn})`,
 			placeHolder: `${defaultTagColumn}`,

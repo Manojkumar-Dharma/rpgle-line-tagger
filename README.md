@@ -1,13 +1,13 @@
-# RPGLE Line Tagger
+# iTagger
 
-Adds a source modification tag (e.g. `//0084`) to selected RPGLE lines at a fixed column, so changes are easy to trace back to a change/PTF/ticket number.
+Adds a source modification tag (e.g. `//0084`) to selected lines in RPGLE, CLP/CLLE, and SQL source files at a fixed column, so changes are easy to trace back to a change/PTF/ticket number.
 
 ## Usage
 
 1. Select one or more lines in the editor (multiple selections are supported).
-2. Right-click and choose **RPGLE: Add Source Tag**, or run the command from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
+2. Right-click and choose **iTagger: Add Source Tag**, or run the command from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
 3. Enter a tag (max 10 characters), e.g. `0084`.
-4. Optionally enter a tag column for this run only — leave it blank to use the configured default (`rpgleTagger.tagColumn`).
+4. Optionally enter a tag column for this run only — leave it blank to use the configured default (`itagger.tagColumn`).
 
 The extension works on any file type. RPGLE (and everything else) gets `//tag` comments; CLP and CLLE source files get `/* tag */` comments; SQL source files get `-- tag` comments.
 
@@ -23,8 +23,8 @@ Given a 100-character line and a tag column of 90 (both configurable):
 
 | Setting | Default | Description |
 |---|---|---|
-| `rpgleTagger.maxLineLength` | `100` | Total usable line length. |
-| `rpgleTagger.tagColumn` | `90` | 1-indexed column where the tag starts when there's room. |
+| `itagger.maxLineLength` | `100` | Total usable line length. |
+| `itagger.tagColumn` | `90` | 1-indexed column where the tag starts when there's room. |
 
 ## Known limitations
 
