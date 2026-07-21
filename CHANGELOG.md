@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.0.8
+
+- Updated the icon/logo.
+- Generalized the description and README wording that referenced `//0084` as if it were the only comment style — now reflects that the marker varies by file type (`//`, `/* */`, `--`).
+
 ## 0.0.7
 
 - CL/CLLE/CLP statements spanning multiple lines via `+` continuation are now tagged as a single logical statement instead of per-line: the tag lands once on the statement's last physical line (or, if there's no room, sandwiches the whole statement block with `-begin`/`-end` markers at column 1). Single-line CL commands are unaffected. RPGLE and SQL still tag every selected line individually.

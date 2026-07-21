@@ -1,6 +1,6 @@
 # iTagger
 
-Adds a source modification tag (e.g. `//0084`) to selected lines in RPGLE, CLP/CLLE, and SQL source files at a fixed column, so changes are easy to trace back to a change/PTF/ticket number.
+Adds a source modification tag to selected lines in RPGLE, CLP/CLLE, and SQL source files at a fixed column, using the right comment style for each — so changes are easy to trace back to a change/PTF/ticket number.
 
 ## Usage
 
@@ -15,7 +15,7 @@ The extension works on any file type. RPGLE (and everything else) gets `//tag` c
 
 Given a 100-character line and a tag column of 90 (both configurable):
 
-1. **Room before column 90** — the line is padded with spaces and the tag (`//0084`) is placed starting at column 90.
+1. **Room before column 90** — the line is padded with spaces and the tag (e.g. `//0084`, `/* 0084 */`, or `-- 0084` depending on file type) is placed starting at column 90.
 2. **Code already reaches column 90, but the line isn't full** — the tag is appended right after the existing text, separated by a single space.
 3. **No room left on the line** — a tag-only line is inserted immediately before *and* immediately after the code line, starting at column 1 and marked `tag-begin` / `tag-end`, so the original line is left untouched.
 
@@ -37,5 +37,5 @@ Single-line CL commands behave exactly like RPGLE/SQL lines (rules 1-3 applied d
 
 ## Known limitations
 
-- Tags are plain text comments (`//tag`); the extension does not validate RPGLE syntax.
+- Tags are plain text comments; the extension does not validate RPGLE, CL, or SQL syntax.
 - Column counting is based on characters, not visual width — avoid tabs in source lines you plan to tag.
