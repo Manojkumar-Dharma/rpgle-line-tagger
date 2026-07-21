@@ -21,7 +21,7 @@ Given a 100-character line and a tag column of 90 (both configurable):
 
 ### CL/CLLE/CLP continuation statements
 
-A CL command that spans multiple physical lines via a trailing `+` is treated as **one logical statement**, not tagged line-by-line. Selecting any line that's part of the statement is enough — iTagger follows the `+` chain to find the statement's true start and end:
+A CL command that spans multiple physical lines via a trailing `+` (general continuation) or `-` (continuing a quoted character-string literal) is treated as **one logical statement**, not tagged line-by-line — a statement can mix both across its lines. Selecting any line that's part of the statement is enough — iTagger follows the continuation chain to find the statement's true start and end:
 
 - Rules 1/2 apply to the statement's **last** physical line only.
 - Rule 3, if triggered, sandwiches the **entire statement block** with `/* tag-begin */` / `/* tag-end */` at column 1, rather than wrapping just the last line.

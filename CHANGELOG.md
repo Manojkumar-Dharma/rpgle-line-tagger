@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.9
+
+- CL statement detection now also follows trailing `-` continuation lines (used to continue a quoted character-string literal), in addition to `+`. A statement can mix both across its lines and is still tagged as one logical unit.
+
 ## 0.0.8
 
 - Updated the icon/logo.

@@ -39,10 +39,14 @@ function buildTagText(tag: string, document: vscode.TextDocument): string {
 	return `//${tag}`;
 }
 
-/** True if this CL line continues onto the next line via a trailing '+'. */
+/**
+ * True if this CL line continues onto the next line. CL uses a trailing '+'
+ * for general statement continuation, and a trailing '-' specifically to
+ * continue a quoted character-string literal across lines.
+ */
 function continuesToNextLine(document: vscode.TextDocument, lineNum: number): boolean {
 	const trimmed = document.lineAt(lineNum).text.replace(/\s+$/, '');
-	return trimmed.endsWith('+');
+	return trimmed.endsWith('+') || trimmed.endsWith('-');
 }
 
 /**
